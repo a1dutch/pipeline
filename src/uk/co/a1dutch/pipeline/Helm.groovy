@@ -9,7 +9,7 @@ public class Helm implements Serializable {
     this.namespace = namespace
   }
 
-  def deploy(File directory) {
+  def deploy(File directory=new File(".")) {
     validateDirectory(directory)
 
     File chartDirectory = new File(directory, "charts");

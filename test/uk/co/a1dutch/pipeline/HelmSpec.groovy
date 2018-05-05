@@ -28,6 +28,16 @@ public class HelmSpec extends Specification {
       1 * steps.sh("helm upgrade apache --install charts/apache --debug")
   }
 
+  def 'should find no chart directory in current directory'() {
+    given:
+      GroovyObjectSupport steps = GroovyMock()
+      Helm helm = new Helm(steps)
+    when:
+        helm.deploy()
+    then:
+      thrown(Exception)
+  }
+
   def 'validates root directory'() {
     given:
       GroovyObjectSupport steps = GroovyMock()
@@ -50,7 +60,7 @@ public class HelmSpec extends Specification {
       thrown(Exception)
   }
 
-  def 'validates charts directory'() {
+  def 'no charts in chart directory'() {
     given:
       GroovyObjectSupport steps = GroovyMock()
       Helm helm = new Helm(steps)

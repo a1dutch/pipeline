@@ -8,5 +8,5 @@ def call(body) {
   body.delegate = config
   body()
 
-  new Helm(this).deploy(new File("."), config.namespace);
+  new Helm(this, config.namespace).deploy();
 }
