@@ -7,10 +7,10 @@ public class HelmSpec extends Specification {
   def 'should deploy all charts into namspace'() {
     given:
       GroovyObjectSupport steps = GroovyMock()
-      Helm helm = new Helm(steps, "test")
+      Helm helm = new Helm(steps)
       File directory = new File("test-resources/helm/valid")
     when:
-        helm.deploy(directory)
+        helm.deploy("test", directory)
     then:
       1 * steps.sh("helm upgrade nginx --install charts/nginx --debug --namespace=test")
       1 * steps.sh("helm upgrade apache --install charts/apache --debug --namespace=test")
@@ -22,7 +22,7 @@ public class HelmSpec extends Specification {
       Helm helm = new Helm(steps)
       File directory = new File("test-resources/helm/valid")
     when:
-        helm.deploy(directory)
+        helm.deploy(null, directory)
     then:
       1 * steps.sh("helm upgrade nginx --install charts/nginx --debug")
       1 * steps.sh("helm upgrade apache --install charts/apache --debug")
@@ -44,7 +44,7 @@ public class HelmSpec extends Specification {
       Helm helm = new Helm(steps)
       File directory = new File("test-resources/helm/file")
     when:
-        helm.deploy(directory)
+        helm.deploy(null, directory)
     then:
       thrown(Exception)
   }
@@ -55,7 +55,7 @@ public class HelmSpec extends Specification {
       Helm helm = new Helm(steps)
       File directory = new File("test-resources/helm/no-chart-directory")
     when:
-        helm.deploy(directory)
+        helm.deploy(null, directory)
     then:
       thrown(Exception)
   }
@@ -66,7 +66,7 @@ public class HelmSpec extends Specification {
       Helm helm = new Helm(steps)
       File directory = new File("test-resources/helm/no-charts")
     when:
-        helm.deploy(directory)
+        helm.deploy(null, directory)
     then:
       0 * steps._
   }
@@ -76,7 +76,7 @@ public class HelmSpec extends Specification {
       GroovyObjectSupport steps = GroovyMock()
       Helm helm = new Helm(steps)
     when:
-      helm.install("test")
+      helm.install("test", null)
     then:
       1 * steps.sh("helm upgrade test --install charts/test --debug")
   }
@@ -84,9 +84,9 @@ public class HelmSpec extends Specification {
   def 'should call helm with namespace'() {
     given:
       GroovyObjectSupport steps = GroovyMock()
-      Helm helm = new Helm(steps, "test")
+      Helm helm = new Helm(steps)
     when:
-      helm.install("test")
+      helm.install("test", "test")
     then:
       1 * steps.sh("helm upgrade test --install charts/test --debug --namespace=test")
   }
@@ -96,7 +96,7 @@ public class HelmSpec extends Specification {
       GroovyObjectSupport steps = GroovyMock()
       Helm helm = new Helm(steps)
     when:
-      helm.install(null)
+      helm.install(null, null)
     then:
       thrown(Exception)
   }

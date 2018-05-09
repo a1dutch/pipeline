@@ -2,14 +2,12 @@ package uk.co.a1dutch.pipeline
 
 public class Helm implements Serializable {
   private steps
-  private String namespace
 
-  Helm(steps, String namespace=null) {
+  Helm(steps) {
     this.steps = steps
-    this.namespace = namespace
   }
 
-  def deploy(File directory=new File(".")) {
+  def deploy(String namespace=null,File directory=new File(".")) {
     validateDirectory(directory)
 
     File chartDirectory = new File(directory, "charts");
@@ -18,12 +16,12 @@ public class Helm implements Serializable {
     File[] files = chartDirectory.listFiles()
     files.each { chart ->
       if (chart.isDirectory()) {
-        install(chart.getName())
+        install(chart.getName(), namespace)
       }
     }
   }
 
-  def install(String chart) {
+  def install(String chart, String namespace) {
     if (chart == null) {
       throw new Exception("chart name must be provided")
     }

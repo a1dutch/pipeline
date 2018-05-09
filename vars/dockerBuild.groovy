@@ -1,6 +1,6 @@
 #!/usr/bin/groovy
 
-import uk.co.a1dutch.pipeline.Helm
+import uk.co.a1dutch.pipeline.Docker
 
 def call(body) {
   def config = [:]
@@ -8,5 +8,5 @@ def call(body) {
   body.delegate = config
   body()
 
-  new Helm(this).deploy(config.namespace);
+  new Docker(this).build(config.repository, config.artifact, config.version, true);
 }
