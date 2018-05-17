@@ -7,13 +7,13 @@ public class Docker implements Serializable {
     this.steps = steps
   }
 
-  def build(String repository, String artifact, String version, boolean tagLatest, File directory=new File(".")) {
+  def build(String repository, String artifact, String version, Boolean tagLatest, File directory=new File(".")) {
     steps.sh("docker build -t ${repository}/${artifact}:${version} ${directory}")
-    if (tagLatest) {
+    if ((tagLatest || tagLatest == null) && version != 'latest') {
       steps.sh("docker tag ${repository}/${artifact}:${version} ${repository}/${artifact}:latest")
     }
     steps.sh("docker push ${repository}/${artifact}:${version}")
-    if (tagLatest) {
+    if ((tagLatest || tagLatest == null) && version != 'latest') {
       steps.sh("docker push ${repository}/${artifact}:latest")
     }
   }
