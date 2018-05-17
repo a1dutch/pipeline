@@ -2,11 +2,6 @@
 
 import uk.co.a1dutch.pipeline.Helm
 
-def call(body) {
-  def config = [:]
-  body.resolveStrategy = Closure.DELEGATE_FIRST
-  body.delegate = config
-  body()
-
+def call(Map config = [:]) {
   new Helm(this).deploy(config.namespace);
 }
