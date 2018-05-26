@@ -8,12 +8,12 @@ public class DockerSpec extends Specification {
     given:
       GroovyObjectSupport steps = GroovyMock()
       Docker docker = new Docker(steps)
-      File directory = new File("test-resources/docker/valid")
     when:
-        docker.build(repository: "a1dutch", artifact: "test", version: "1.0.1", tagLatest: true, directory: directory)
+        docker.build(repository: "a1dutch", artifact: "test", version: "1.0.1", tagLatest: true)
     then:
       interaction {
-        dockerIsBuilt(steps, 'a1dutch/test:1.0.1', 'test-resources/docker/valid')
+        dockerfileExists(steps, true)
+        dockerIsBuilt(steps, 'a1dutch/test:1.0.1')
         dockerTag(steps, 'a1dutch/test:1.0.1', 'a1dutch/test:latest')
         dockerPush(steps, 'a1dutch/test:1.0.1')
         dockerPush(steps, 'a1dutch/test:latest')
@@ -25,13 +25,13 @@ public class DockerSpec extends Specification {
     given:
       GroovyObjectSupport steps = GroovyMock()
       Docker docker = new Docker(steps)
-      File directory = new File("test-resources/docker/no-dockerfile")
     when:
-        docker.build(repository: "a1dutch", artifact: "test", version: "1.0.1", tagLatest: true, directory: directory)
+        docker.build(repository: "a1dutch", artifact: "test", version: "1.0.1", tagLatest: true)
     then:
       interaction {
+        dockerfileExists(steps, false)
         dockerfileIsCopied(steps)
-        dockerIsBuilt(steps, 'a1dutch/test:1.0.1', 'test-resources/docker/no-dockerfile')
+        dockerIsBuilt(steps, 'a1dutch/test:1.0.1')
         dockerTag(steps, 'a1dutch/test:1.0.1', 'a1dutch/test:latest')
         dockerPush(steps, 'a1dutch/test:1.0.1')
         dockerPush(steps, 'a1dutch/test:latest')
@@ -43,12 +43,12 @@ public class DockerSpec extends Specification {
     given:
       GroovyObjectSupport steps = GroovyMock()
       Docker docker = new Docker(steps)
-      File directory = new File("test-resources/docker/valid")
     when:
-        docker.build(repository: "a1dutch", artifact: "test", version: "1.0.1", directory: directory)
+        docker.build(repository: "a1dutch", artifact: "test", version: "1.0.1")
     then:
       interaction {
-        dockerIsBuilt(steps, 'a1dutch/test:1.0.1', 'test-resources/docker/valid')
+        dockerfileExists(steps, true)
+        dockerIsBuilt(steps, 'a1dutch/test:1.0.1')
         dockerTag(steps, 'a1dutch/test:1.0.1', 'a1dutch/test:latest')
         dockerPush(steps, 'a1dutch/test:1.0.1')
         dockerPush(steps, 'a1dutch/test:latest')
@@ -60,12 +60,12 @@ public class DockerSpec extends Specification {
     given:
       GroovyObjectSupport steps = GroovyMock()
       Docker docker = new Docker(steps)
-      File directory = new File("test-resources/docker/valid")
     when:
-        docker.build(repository: "a1dutch", artifact: "test", version: "1.0.1", tagLatest: false, directory: directory)
+        docker.build(repository: "a1dutch", artifact: "test", version: "1.0.1", tagLatest: false)
     then:
       interaction {
-        dockerIsBuilt(steps, 'a1dutch/test:1.0.1', 'test-resources/docker/valid')
+        dockerfileExists(steps, true)
+        dockerIsBuilt(steps, 'a1dutch/test:1.0.1')
         dockerPush(steps, 'a1dutch/test:1.0.1')
         noMoreInteractions()
       }
@@ -75,12 +75,12 @@ public class DockerSpec extends Specification {
     given:
       GroovyObjectSupport steps = GroovyMock()
       Docker docker = new Docker(steps)
-      File directory = new File("test-resources/docker/valid")
     when:
-        docker.build(repository: "a1dutch", artifact: "test", version: "latest", tagLatest: true, directory: directory)
+        docker.build(repository: "a1dutch", artifact: "test", version: "latest", tagLatest: true)
     then:
       interaction {
-        dockerIsBuilt(steps, 'a1dutch/test:latest', 'test-resources/docker/valid')
+        dockerfileExists(steps, true)
+        dockerIsBuilt(steps, 'a1dutch/test:latest')
         dockerPush(steps, 'a1dutch/test:latest')
         noMoreInteractions()
       }
@@ -98,12 +98,16 @@ public class DockerSpec extends Specification {
     1 * steps.sh("docker tag ${artifact} ${tag}")
   }
 
-  def dockerIsBuilt(def steps, String artifact, String directory) {
-    1 * steps.sh("docker build -t ${artifact} ${directory}")
+  def dockerIsBuilt(def steps, String artifact) {
+    1 * steps.sh("docker build -t ${artifact} .")
   }
 
   def dockerfileIsCopied(def steps) {
     1 * steps.writeFile([file: "Dockerfile", text: null])
     1 * steps.libraryResource("Dockerfile-java8")
+  }
+
+  def dockerfileExists(def steps, boolean exists) {
+    1 * steps.fileExists('Dockerfile') >> exists
   }
 }

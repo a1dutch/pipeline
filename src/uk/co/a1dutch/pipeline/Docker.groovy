@@ -13,21 +13,16 @@ public class Docker implements Serializable {
     String artifact = config.artifact
     String version = config.version ?: 'latest'
     boolean tagLatest = config.tagLatest == null ? true : config.tagLatest.toBoolean()
-    File directory = config.directory ?: new File(".")
 
-    steps.echo("directory: " + directory.getAbsolutePath())
-    steps.echo("pwd: " + new File(".").getAbsolutePath())
-
-    File dockerfile = new File(directory, 'Dockerfile')
-    steps.echo("[INFO ] dockerfile: " + dockerfile.getAbsolutePath())
-    if (!dockerfile.exists()) {
+    if (!steps.fileExists('Dockerfile')) {
       steps.writeFile(file: 'Dockerfile', text: steps.libraryResource("Dockerfile-${language}"))
     }
 
-    steps.sh("docker build -t ${repository}/${artifact}:${version} ${directory}")
+    steps.sh("docker build -t ${repository}/${artifact}:${version} .")
     if (tagLatest && version != 'latest') {
       steps.sh("docker tag ${repository}/${artifact}:${version} ${repository}/${artifact}:latest")
     }
+    
     steps.sh("docker push ${repository}/${artifact}:${version}")
     if (tagLatest && version != 'latest') {
       steps.sh("docker push ${repository}/${artifact}:latest")
