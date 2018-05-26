@@ -15,6 +15,9 @@ public class Docker implements Serializable {
     boolean tagLatest = config.tagLatest == null ? true : config.tagLatest.toBoolean()
     File directory = config.directory ?: new File(".")
 
+    steps.echo("directory: " + directory.getAbsolutePath())
+    steps.echo("pwd: " + new File(".").getAbsolutePath())
+
     File dockerfile = new File(directory, 'Dockerfile')
     steps.echo("[INFO ] dockerfile: " + dockerfile.getAbsolutePath())
     if (!dockerfile.exists()) {
