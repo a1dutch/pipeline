@@ -1,0 +1,7 @@
+FROM openjdk:8u171-jre-slim-stretch
+
+VOLUME /tmp
+
+ADD target/*.jar /application.jar
+
+ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-jar","/application.jar"]
