@@ -15,7 +15,9 @@ public class Docker implements Serializable {
     boolean tagLatest = config.tagLatest == null ? true : config.tagLatest.toBoolean()
     File directory = config.directory ?: new File(".")
 
-    if (!new File(directory, 'Dockerfile').exists()) {
+    File dockerfile = new File(directory, 'Dockerfile')
+    println "[INFO ] dockerfile: ${dockerfile.getAbsolutePath()}"
+    if (!dockerfile.exists()) {
       steps.writeFile(file: 'Dockerfile', text: steps.libraryResource("Dockerfile-${language}"))
     }
 
