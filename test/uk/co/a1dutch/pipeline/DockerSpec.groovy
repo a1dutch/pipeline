@@ -17,7 +17,7 @@ public class DockerSpec extends Specification {
         dockerTag(steps, 'a1dutch/test:1.0.1', 'a1dutch/test:latest')
         dockerPush(steps, 'a1dutch/test:1.0.1')
         dockerPush(steps, 'a1dutch/test:latest')
-        noMoreInteractions()
+        noMoreInteractions(steps)
       }
   }
 
@@ -35,7 +35,7 @@ public class DockerSpec extends Specification {
         dockerTag(steps, 'a1dutch/test:1.0.1', 'a1dutch/test:latest')
         dockerPush(steps, 'a1dutch/test:1.0.1')
         dockerPush(steps, 'a1dutch/test:latest')
-        noMoreInteractions()
+        noMoreInteractions(steps)
       }
   }
 
@@ -52,7 +52,7 @@ public class DockerSpec extends Specification {
         dockerTag(steps, 'a1dutch/test:1.0.1', 'a1dutch/test:latest')
         dockerPush(steps, 'a1dutch/test:1.0.1')
         dockerPush(steps, 'a1dutch/test:latest')
-        noMoreInteractions()
+        noMoreInteractions(steps)
       }
   }
 
@@ -67,7 +67,7 @@ public class DockerSpec extends Specification {
         dockerfileExists(steps, true)
         dockerIsBuilt(steps, 'a1dutch/test:1.0.1')
         dockerPush(steps, 'a1dutch/test:1.0.1')
-        noMoreInteractions()
+        noMoreInteractions(steps)
       }
   }
 
@@ -82,11 +82,12 @@ public class DockerSpec extends Specification {
         dockerfileExists(steps, true)
         dockerIsBuilt(steps, 'a1dutch/test:latest')
         dockerPush(steps, 'a1dutch/test:latest')
-        noMoreInteractions()
+        noMoreInteractions(steps)
       }
   }
 
-  def noMoreInteractions() {
+  def noMoreInteractions(def steps) {
+    _ * steps.echo(_)
     0 * _
   }
 

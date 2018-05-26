@@ -14,7 +14,10 @@ public class Docker implements Serializable {
     String version = config.version ?: 'latest'
     boolean tagLatest = config.tagLatest == null ? true : config.tagLatest.toBoolean()
 
-    if (!steps.fileExists('Dockerfile')) {
+    if (steps.fileExists('Dockerfile')) {
+      steps.echo("[INFO ] using existing docker file in repository")
+    } else {
+      steps.echo("[INFO ] copying Dockerfile-${language}")
       steps.writeFile(file: 'Dockerfile', text: steps.libraryResource("Dockerfile-${language}"))
     }
 
@@ -22,7 +25,7 @@ public class Docker implements Serializable {
     if (tagLatest && version != 'latest') {
       steps.sh("docker tag ${repository}/${artifact}:${version} ${repository}/${artifact}:latest")
     }
-    
+
     steps.sh("docker push ${repository}/${artifact}:${version}")
     if (tagLatest && version != 'latest') {
       steps.sh("docker push ${repository}/${artifact}:latest")
