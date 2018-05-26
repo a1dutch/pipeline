@@ -16,7 +16,7 @@ public class Docker implements Serializable {
     File directory = config.directory ?: new File(".")
 
     File dockerfile = new File(directory, 'Dockerfile')
-    println "[INFO ] dockerfile: ${dockerfile.getAbsolutePath()}"
+    steps.echo("[INFO ] dockerfile: " + dockerfile.getAbsolutePath()})
     if (!dockerfile.exists()) {
       steps.writeFile(file: 'Dockerfile', text: steps.libraryResource("Dockerfile-${language}"))
     }
