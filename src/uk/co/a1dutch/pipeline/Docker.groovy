@@ -21,7 +21,9 @@ public class Docker implements Serializable {
       steps.writeFile(file: 'Dockerfile', text: steps.libraryResource("Dockerfile-${language}"))
     }
 
-    steps.sh("docker build -t ${repository}/${artifact}:${version} \\.")
+    def cmd = "docker build -t ${repository}/${artifact}:${version} ."
+    steps.echo("[INFO ] command: ${cmd}")
+    steps.sh(cmd)
     if (tagLatest && version != 'latest') {
       steps.sh("docker tag ${repository}/${artifact}:${version} ${repository}/${artifact}:latest")
     }

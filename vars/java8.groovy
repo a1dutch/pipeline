@@ -37,7 +37,7 @@ def call(Map config = [:]) {
         agent { label 'docker' }
         steps {
           script {
-            docker.build([repository: config.repository, artifact: config.artifact, version: env.VERSION]);
+            docker.build([repository: config.repository, artifact: config.artifact, version: env.VERSION])
           }
         }
       }
