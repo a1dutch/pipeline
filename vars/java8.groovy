@@ -10,6 +10,12 @@ def call(Map config = [:]) {
 
   pipeline {
     agent { label 'java8' }
+    options {
+      disableResume()
+      skipDefaultCheckout()
+      disableConcurrentBuilds()
+      timeout(time: 1, unit: 'HOURS')
+    }
     stages {
       stage('Checkout') {
         steps {
