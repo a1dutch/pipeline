@@ -30,6 +30,7 @@ def call(Map config = [:]) {
         steps {
           script {
             maven.wrapper('clean package')
+            stash(includes: 'target/*.jar', name: 'application')
           }
         }
       }
@@ -37,6 +38,7 @@ def call(Map config = [:]) {
         agent { label 'docker' }
         steps {
           script {
+            unstash('application')
             docker.build([repository: config.repository, artifact: config.artifact, version: env.VERSION])
           }
         }
