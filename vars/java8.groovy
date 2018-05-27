@@ -1,8 +1,13 @@
 #!/usr/bin/groovy
 
 import uk.co.a1dutch.pipeline.Docker
+import uk.co.a1dutch.pipeline.Maven
 
 def call(Map config = [:]) {
+
+  Docker docker = new Docker(this)
+  Maven maven = new Maven(this)
+
   pipeline {
     agent { label 'java8' }
     stages {
@@ -17,12 +22,17 @@ def call(Map config = [:]) {
       }
       stage('Build') {
         steps {
-          sh('./mvnw clean package')
+          script {
+            maven.wrapper('clean package')
+          }
         }
       }
       stage('Docker') {
+        agent { label 'docker' }
         steps {
-          new Docker(this).build([repository: config.repository, artifact: config.artifact, version: env.VERSION]);
+          script {
+            docker.build([repository: config.repository, artifact: config.artifact, version: env.VERSION]);
+          }
         }
       }
     }
