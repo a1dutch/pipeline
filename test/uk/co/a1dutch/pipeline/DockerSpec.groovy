@@ -100,7 +100,7 @@ public class DockerSpec extends Specification {
   }
 
   def dockerIsBuilt(def steps, String artifact) {
-    1 * steps.sh("docker build -t ${artifact} .")
+    1 * steps.sh("docker build -t ${artifact} \\.")
   }
 
   def dockerfileIsCopied(def steps) {
