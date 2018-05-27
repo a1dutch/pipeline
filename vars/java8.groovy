@@ -22,7 +22,7 @@ def call(Map config = [:]) {
       }
       stage('Docker') {
         steps {
-          new Docker(this).build(repository: config.repository, artifact: config.artifact, version: env.VERSION);
+          new Docker(this).build([repository: config.repository, artifact: config.artifact, version: env.VERSION]);
         }
       }
     }
