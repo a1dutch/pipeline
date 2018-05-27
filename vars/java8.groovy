@@ -22,7 +22,8 @@ def call(Map config = [:]) {
           script {
             env.TIMESTAMP = sh(script: 'date "+%Y%m%d.%H%M%S"', returnStdout: true)
             env.GIT_COMMIT = checkout(scm).GIT_COMMIT
-            env.VERSION = "${env.TIMESTAMP}.${env.GIT_COMMIT.substring(0, 8).replaceAll("[\n\r]", "")}"
+            def version = env.GIT_COMMIT.substring(0, 8).replaceAll("[\n\r]", "")
+            env.VERSION = "${env.TIMESTAMP}.${version}"
           }
         }
       }
