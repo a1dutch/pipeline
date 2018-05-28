@@ -2,12 +2,14 @@ package uk.co.a1dutch.pipeline
 
 public class Docker implements Serializable {
   private steps
+  private logger
 
   Docker(steps) {
     this.steps = steps
+    this.logger = new Logger(steps)
   }
 
-  def build(Map config) {
+  def build(Map config = [:]) {
     String language = 'java8'
     String repository = config.repository
     String artifact = config.artifact
@@ -15,15 +17,13 @@ public class Docker implements Serializable {
     boolean tagLatest = config.tagLatest == null ? true : config.tagLatest.toBoolean()
 
     if (steps.fileExists('Dockerfile')) {
-      steps.echo("[INFO ] using existing docker file in repository")
+      logger.info("Using existing docker file in repository")
     } else {
-      steps.echo("[INFO ] copying Dockerfile-${language}")
+      logger.info("Copying Dockerfile-${language}")
       steps.writeFile(file: 'Dockerfile', text: steps.libraryResource("Dockerfile-${language}"))
     }
 
-    def cmd = "docker build -t ${repository}/${artifact}:${version} ."
-    steps.echo("[INFO ] command: ${cmd}")
-    steps.sh(cmd)
+    steps.sh("docker build -t ${repository}/${artifact}:${version} .")
     if (tagLatest && version != 'latest') {
       steps.sh("docker tag ${repository}/${artifact}:${version} ${repository}/${artifact}:latest")
     }

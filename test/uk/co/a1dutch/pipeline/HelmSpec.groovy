@@ -1,103 +1,65 @@
 package uk.co.a1dutch.pipeline
 
+import hudson.FilePath
+import hudson.remoting.VirtualChannel
 import spock.lang.Specification
 
 public class HelmSpec extends Specification {
 
+  GroovyObjectSupport steps = GroovyMock()
+  GroovyObjectSupport build = GroovyMock()
+  GroovyObjectSupport workspace = GroovyMock()
+  FilePathFactory factory = GroovyMock()
+  FilePath filePath = GroovyMock()
+  FilePath chart = GroovyMock()
+
   def 'should deploy all charts into namspace'() {
     given:
-      GroovyObjectSupport steps = GroovyMock()
-      Helm helm = new Helm(steps)
-      File directory = new File("test-resources/helm/valid")
+      Helm helm = new Helm(factory, steps)
     when:
-        helm.deploy("test", directory)
+        helm.deploy(namespace: "test")
     then:
+      interaction {
+        deploy()
+        noMoreInteractions()
+      }
+  }
+
+  def 'install chart with namespace'() {
+    given:
+      Helm.InstallChart chart = new Helm.InstallChart(steps, 'test')
+      File file = GroovyMock()
+      VirtualChannel channel = GroovyMock()
+    when:
+      chart.invoke(file, channel)
+    then:
+      1 * file.name >> 'nginx'
       1 * steps.sh("helm upgrade nginx --install charts/nginx --debug --namespace=test")
-      1 * steps.sh("helm upgrade apache --install charts/apache --debug --namespace=test")
   }
 
-  def 'should deploy all charts'() {
+  def 'install chart into default namespace'() {
     given:
-      GroovyObjectSupport steps = GroovyMock()
-      Helm helm = new Helm(steps)
-      File directory = new File("test-resources/helm/valid")
+      Helm.InstallChart chart = new Helm.InstallChart(steps, null)
+      File file = GroovyMock()
+      VirtualChannel channel = GroovyMock()
     when:
-        helm.deploy(null, directory)
+      chart.invoke(file, channel)
     then:
+      1 * file.name >> 'nginx'
       1 * steps.sh("helm upgrade nginx --install charts/nginx --debug")
-      1 * steps.sh("helm upgrade apache --install charts/apache --debug")
   }
 
-  def 'should find no chart directory in current directory'() {
-    given:
-      GroovyObjectSupport steps = GroovyMock()
-      Helm helm = new Helm(steps)
-    when:
-        helm.deploy()
-    then:
-      thrown(Exception)
+  def deploy() {
+    1 * steps.build >> build
+    1 * build.workspace >> workspace
+    1 * factory.newFilePath(*_) >> filePath
+    1 * filePath.isDirectory() >> true
+    1 * filePath.listDirectories() >> [chart]
+    1 * chart.act(_)
   }
 
-  def 'validates root directory'() {
-    given:
-      GroovyObjectSupport steps = GroovyMock()
-      Helm helm = new Helm(steps)
-      File directory = new File("test-resources/helm/file")
-    when:
-        helm.deploy(null, directory)
-    then:
-      thrown(Exception)
-  }
-
-  def 'validates charts directory'() {
-    given:
-      GroovyObjectSupport steps = GroovyMock()
-      Helm helm = new Helm(steps)
-      File directory = new File("test-resources/helm/no-chart-directory")
-    when:
-        helm.deploy(null, directory)
-    then:
-      thrown(Exception)
-  }
-
-  def 'no charts in chart directory'() {
-    given:
-      GroovyObjectSupport steps = GroovyMock()
-      Helm helm = new Helm(steps)
-      File directory = new File("test-resources/helm/no-charts")
-    when:
-        helm.deploy(null, directory)
-    then:
-      0 * steps._
-  }
-
-  def 'should call helm'() {
-    given:
-      GroovyObjectSupport steps = GroovyMock()
-      Helm helm = new Helm(steps)
-    when:
-      helm.install("test", null)
-    then:
-      1 * steps.sh("helm upgrade test --install charts/test --debug")
-  }
-
-  def 'should call helm with namespace'() {
-    given:
-      GroovyObjectSupport steps = GroovyMock()
-      Helm helm = new Helm(steps)
-    when:
-      helm.install("test", "test")
-    then:
-      1 * steps.sh("helm upgrade test --install charts/test --debug --namespace=test")
-  }
-
-  def 'should validate chart param'() {
-    given:
-      GroovyObjectSupport steps = GroovyMock()
-      Helm helm = new Helm(steps)
-    when:
-      helm.install(null, null)
-    then:
-      thrown(Exception)
+  def noMoreInteractions() {
+    _ * steps.echo(_)
+    0 * _
   }
 }

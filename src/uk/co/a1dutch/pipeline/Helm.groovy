@@ -1,37 +1,57 @@
 package uk.co.a1dutch.pipeline
 
+import hudson.FilePath
+import hudson.remoting.VirtualChannel
+import org.jenkinsci.remoting.RoleChecker
+
 public class Helm implements Serializable {
+  private FilePathFactory filePathFactory
   private steps
+  private Logger logger
 
-  Helm(steps) {
+  Helm(FilePathFactory factory, def steps) {
+    this.filePathFactory = factory
     this.steps = steps
+    this.logger = new Logger(steps)
   }
 
-  def deploy(String namespace=null,File directory=new File(".")) {
-    validateDirectory(directory)
+  Helm(def steps) {
+    this(new FilePathFactory(), steps)
+  }
 
-    File chartDirectory = new File(directory, "charts");
-    validateDirectory(chartDirectory)
+  def deploy(Map config = [:]) {
+    String namespace = config.namespace
 
-    File[] files = chartDirectory.listFiles()
-    files.each { chart ->
-      if (chart.isDirectory()) {
-        install(chart.getName(), namespace)
-      }
+    FilePath charts = filePathFactory.newFilePath(steps.build.workspace, 'charts')
+    if (!charts.isDirectory()) {
+      logger.warn('Charts is not a directory')
+      return
+    }
+
+    List<FilePath> directories = charts.listDirectories()
+    logger.info("found ${directories.size()} charts")
+    for (FilePath directory : directories) {
+      directory.act(new InstallChart(steps, config.namespace))
     }
   }
 
-  def install(String chart, String namespace) {
-    if (chart == null) {
-      throw new Exception("chart name must be provided")
-    }
-    println "deploying helm chart: chart/${chart}}" + (namespace ? ", namespace: ${namespace}" : "" )
-    steps.sh("helm upgrade ${chart} --install charts/${chart} --debug" + (namespace ? " --namespace=${namespace}" : "" ))
-  }
+  private static final class InstallChart implements FilePath.FileCallable<Void> {
+    def steps
+    String namespace
 
-  def validateDirectory(File directory) {
-    if (!directory.exists() || !directory.isDirectory()) {
-      throw new Exception("$directory must be a directory")
+    InstallChart(def steps, String namespace) {
+      this.steps = steps
+      this.namespace = namespace
     }
+
+    public Void invoke(File f, VirtualChannel channel) {
+        String chart = f.name
+        steps.sh("helm upgrade ${chart} --install charts/${chart} --debug" + (namespace ? " --namespace=${namespace}" : "" ))
+        return null;
+    }
+
+    public void checkRoles(RoleChecker roleChecker) {
+    }
+
   }
 }
