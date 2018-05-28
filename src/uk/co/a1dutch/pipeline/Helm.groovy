@@ -22,13 +22,13 @@ public class Helm implements Serializable {
   def install(Map config = [:]) {
     def files = [
       'templates/_helpers.tpl',
-      'templates/deployment.yml',
-      'templates/ingress.yml',
+      'templates/deployment.yaml',
+      'templates/ingress.yaml',
       'templates/Notes.txt',
-      'templates/service.yml',
+      'templates/service.yaml',
       '.helmignore',
-      'Chart.yml',
-      'values.yml'
+      'Chart.yaml',
+      'values.yaml'
     ]
     for (String file: files) {
       steps.writeFile(file: "${config.artifact}/${file}", text: steps.libraryResource("helm/${file}"))

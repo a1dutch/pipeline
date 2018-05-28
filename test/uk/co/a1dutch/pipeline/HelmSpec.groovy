@@ -20,13 +20,13 @@ public class HelmSpec extends Specification {
       interaction {
         def files = [
           'templates/_helpers.tpl',
-          'templates/deployment.yml',
-          'templates/ingress.yml',
+          'templates/deployment.yaml',
+          'templates/ingress.yaml',
           'templates/Notes.txt',
-          'templates/service.yml',
+          'templates/service.yaml',
           '.helmignore',
-          'Chart.yml',
-          'values.yml'
+          'Chart.yaml',
+          'values.yaml'
         ]
         for (String file: files) {
           1 * steps.libraryResource("helm/${file}") >> ''
