@@ -5,8 +5,8 @@
 replicaCount: 1
 
 image:
-  repository: a1dutch/HELM_APP_CHART
-  tag: HELM_APP_TAG
+  repository: a1dutch/HELM_APP_ARTIFACT
+  tag: HELM_APP_VERSION
   pullPolicy: IfNotPresent
 
 service:

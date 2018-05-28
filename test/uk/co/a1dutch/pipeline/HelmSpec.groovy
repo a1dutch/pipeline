@@ -15,7 +15,7 @@ public class HelmSpec extends Specification {
     given:
       Helm helm = new Helm(factory, steps)
     when:
-      helm.install([artifact: 'test', version: '1.0.1', description: 'descripton'])
+      helm.install([artifact: 'test', version: '1.0.1', description: 'description'])
     then:
       interaction {
         def files = [
@@ -29,8 +29,8 @@ public class HelmSpec extends Specification {
           'values.yaml'
         ]
         for (String file: files) {
-          1 * steps.libraryResource("helm/${file}") >> ''
-          1 * steps.writeFile([file: "test/${file}", text: ''])
+          1 * steps.libraryResource("helm/${file}") >> 'HELM_APP_ARTIFACT\nHELM_APP_VERSION\nHELM_APP_DESCRIPTION'
+          1 * steps.writeFile([file: "test/${file}", text: 'test\n1.0.1\ndescription'])
         }
 
         noMoreInteractions()

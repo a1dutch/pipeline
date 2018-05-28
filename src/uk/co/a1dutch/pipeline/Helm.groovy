@@ -31,7 +31,11 @@ public class Helm implements Serializable {
       'values.yaml'
     ]
     for (String file: files) {
-      steps.writeFile(file: "${config.artifact}/${file}", text: steps.libraryResource("helm/${file}"))
+      String text = steps.libraryResource("helm/${file}")
+        .replaceAll('HELM_APP_ARTIFACT', config.artifact)
+        .replaceAll('HELM_APP_VERSION', config.version)
+        .replaceAll('HELM_APP_DESCRIPTION', config.description)
+      steps.writeFile(file: "${config.artifact}/${file}", text: text)
     }
     steps.sh("helm package ./${config.artifact}")
     steps.sh("helm s3 push ./${config.artifact}-${config.version} internal")
