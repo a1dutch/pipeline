@@ -1,5 +1,9 @@
 @Library('pipeline@master') _
 
+import uk.co.a1dutch.pipeline.Maven
+
+Maven maven = new Maven(this)
+
 pipeline {
   agent { label 'java8' }
   options {
@@ -15,7 +19,7 @@ pipeline {
     }
     stage('Build') {
       steps {
-        sh('./mvnw clean test')
+        maven.wrapper('clean test')
       }
     }
   }
