@@ -16,13 +16,13 @@ public class Helm implements Serializable {
   }
 
   Helm(def steps) {
-    this(new FilePathFactory(), steps)
+    this(new FilePathFactory(steps), steps)
   }
 
   def deploy(Map config = [:]) {
     String namespace = config.namespace
 
-    FilePath charts = filePathFactory.newFilePath(steps.build.workspace, 'charts')
+    FilePath charts = filePathFactory.newFilePath('charts')
     if (!charts.isDirectory()) {
       logger.warn('Charts is not a directory')
       return

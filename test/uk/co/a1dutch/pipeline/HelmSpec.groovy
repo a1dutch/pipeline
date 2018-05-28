@@ -50,9 +50,7 @@ public class HelmSpec extends Specification {
   }
 
   def deploy() {
-    1 * steps.build >> build
-    1 * build.workspace >> workspace
-    1 * factory.newFilePath(*_) >> filePath
+    1 * factory.newFilePath(_) >> filePath
     1 * filePath.isDirectory() >> true
     1 * filePath.listDirectories() >> [chart]
     1 * chart.act(_)
