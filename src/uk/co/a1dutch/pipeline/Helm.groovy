@@ -19,6 +19,24 @@ public class Helm implements Serializable {
     this(new FilePathFactory(steps), steps)
   }
 
+  def install(Map config = [:]) {
+    def files = [
+      'templates/_helpers.tpl',
+      'templates/deployment.yml',
+      'templates/ingress.yml',
+      'templates/Notes.txt',
+      'templates/service.yml',
+      '.helmignore',
+      'Chart.yml',
+      'values.yml'
+    ]
+    for (String file: files) {
+      steps.writeFile(file: "${config.artifact}/${file}", text: steps.libraryResource("helm/${file}"))
+    }
+    steps.sh("helm package ./${config.artifact}")
+    steps.sh("helm s3 push ./${config.artifact}-${config.version} internal")
+  }
+
   def deploy(Map config = [:]) {
     String namespace = config.namespace
 

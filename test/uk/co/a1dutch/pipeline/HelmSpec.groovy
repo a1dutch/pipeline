@@ -7,17 +7,44 @@ import spock.lang.Specification
 public class HelmSpec extends Specification {
 
   GroovyObjectSupport steps = GroovyMock()
-  GroovyObjectSupport build = GroovyMock()
-  GroovyObjectSupport workspace = GroovyMock()
   FilePathFactory factory = GroovyMock()
   FilePath filePath = GroovyMock()
   FilePath chart = GroovyMock()
+
+  def 'should build and push chart to internal repository'() {
+    given:
+      Helm helm = new Helm(factory, steps)
+    when:
+      helm.install([artifact: 'test', version: '1.0.1', description: 'descripton'])
+    then:
+      interaction {
+        def files = [
+          'templates/_helpers.tpl',
+          'templates/deployment.yml',
+          'templates/ingress.yml',
+          'templates/Notes.txt',
+          'templates/service.yml',
+          '.helmignore',
+          'Chart.yml',
+          'values.yml'
+        ]
+        for (String file: files) {
+          1 * steps.libraryResource("helm/${file}") >> ''
+          1 * steps.writeFile([file: "test/${file}", text: ''])
+        }
+
+        noMoreInteractions()
+
+        1 * steps.sh('helm package ./test')
+        1 * steps.sh('helm s3 push ./test-1.0.1 internal')
+      }
+  }
 
   def 'should deploy all charts into namspace'() {
     given:
       Helm helm = new Helm(factory, steps)
     when:
-        helm.deploy(namespace: "test")
+      helm.deploy(namespace: "test")
     then:
       interaction {
         deploy()

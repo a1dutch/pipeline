@@ -2,11 +2,13 @@
 
 import uk.co.a1dutch.pipeline.Docker
 import uk.co.a1dutch.pipeline.Maven
+import uk.co.a1dutch.pipeline.Helm
 
 def call(Map config = [:]) {
 
   Docker docker = new Docker(this)
   Maven maven = new Maven(this)
+  Helm helm = new Helm(this)
 
   pipeline {
     agent { label 'java8' }
@@ -39,7 +41,23 @@ def call(Map config = [:]) {
         steps {
           script {
             unstash('application')
-            docker.build([repository: config.repository, artifact: config.artifact, version: env.VERSION])
+            docker.build([
+                repository: config.repository,
+                artifact: config.artifact,
+                version: env.VERSION
+            ])
+          }
+        }
+      }
+      stage('Helm') {
+        agent { label 'helm' }
+        steps {
+          script {
+            helm.install([
+              artifact: config.artifact,
+              version: env.VERSION,
+              description: config.description
+            ])
           }
         }
       }
