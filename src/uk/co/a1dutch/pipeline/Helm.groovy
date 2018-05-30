@@ -37,6 +37,10 @@ public class Helm implements Serializable {
         .replaceAll('HELM_APP_DESCRIPTION', config.description ?: '')
       steps.writeFile(file: "${config.artifact}/${file}", text: text)
     }
+    steps.sh("ls -la /home/jenkins/")
+    steps.sh("ls -la /home/jenkins/.helm/")
+    steps.sh("ls -la /home/jenkins/.helm/repository")
+    steps.sh("ls -la /home/jenkins/.helm/repository/local")
     steps.sh("helm package ./${config.artifact}")
     steps.sh("helm s3 push ./${config.artifact}-${config.version} internal")
   }
